@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 void main()
@@ -41,9 +41,17 @@ class _MyAppState extends State<MyApp> {
   var  currentCity;
   var temperature;
   var description;
+  var humidity;
+  var dt;
+  var feels_like;
+  var sunrise;
+  var formattedDate;
   void getWeather() async
   {
-    print("Clicked");
+    DateTime now = DateTime.now();
+    formattedDate = DateFormat('EEE d MMM \n kk:mm:ss ').format(now);
+    //print(formattedDate);
+    //print("Clicked");
     String cityName =cityNameController.text;
     final queryparameter={
       "q":cityName,
@@ -62,41 +70,39 @@ class _MyAppState extends State<MyApp> {
       currentCity = json["name"];
       temperature=json["main"]["temp"];
       description=json["weather"][0]["main"];
-      print(description);
+      humidity=json["main"]["humidity"];
+      feels_like=json["main"]["feels_like"];
+      sunrise=json["sys"]["sunrise"];
+      dt=json["dt"];
+      print(sunrise);
     });
   }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.amber,
+      ),
+      debugShowCheckedModeBanner: false,
       home:Scaffold(
+        backgroundColor: Colors.teal[200],
         appBar: AppBar(
           backgroundColor: Colors.cyanAccent,
           centerTitle:true ,
           title:Text("Weather App",
           style:TextStyle(
               fontStyle:FontStyle.italic,
-              fontSize: 30.0,
-              color: Colors.cyan,
+              fontSize: 36.0,
+              color: Colors.pinkAccent[200],
           ),
 
         )
         ),
         body:Center(
-         child:Column(
+          child:Column(
             mainAxisAlignment: MainAxisAlignment.center,
             //crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text("Currently in "+(currentCity == null?"loading":currentCity).toString(),
-                style: TextStyle(
-                  fontSize: 30.0,
-                  fontWeight:FontWeight.bold,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-              Text((temperature==null? "loading":(temperature-273).toStringAsFixed(2)).toString()+"\u00B0"+"C"),
-              Text((description==null? "loading":description).toString(),
-                style: TextStyle(fontSize: 40.0),
-              ),
               SizedBox(
                 width: 200,
                 child: TextField(
@@ -107,14 +113,98 @@ class _MyAppState extends State<MyApp> {
               // TextField(
               //
               // ),
-              ElevatedButton(
-                  onPressed: getWeather,
-                  child: Text("Search"),
+              SizedBox(
+                height: 10,
               ),
+              ElevatedButton(
+                onPressed: getWeather,
+
+                child: Text("Search",style: TextStyle(
+                  fontSize: 20,
+                ),),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text("           Weather details          \n",
+                style: TextStyle(
+                  fontSize: 50.0,
+                  fontWeight:FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              Text((currentCity == null?" ":"Location        "+currentCity).toString(),
+                style: TextStyle(
+                  fontSize: 30.0,
+                  fontWeight:FontWeight.bold,
+                  color: Colors.green,
+                  fontStyle: FontStyle.italic,
+
+                ),
+              ),
+              Text(
+                  (temperature==null?" ":"Temperature    "+(temperature-273).toStringAsFixed(2).toString()+"\u00B0 C /"+
+                      (((temperature*9)-2297)/5).toStringAsFixed(2).toString()+"\u00B0 F"),
+                style: TextStyle(
+
+                  fontSize: 30.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.pinkAccent,
+                  fontStyle: FontStyle.italic,
+                )),
+              Text(
+                  (feels_like==null?"  ":"Feels Like    "+(feels_like-273).toStringAsFixed(2).toString()+
+                  "\u00B0 C"),
+                  style: TextStyle(
+                    fontSize: 30.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.brown,
+                    fontStyle: FontStyle.italic,
+                  )),
+              Text((formattedDate==null?"  ":"Current Date and Time \n"+formattedDate),
+                  style: TextStyle(
+                    fontSize: 30.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.purple,
+                    fontStyle: FontStyle.italic,
+                  )
+              ),
+
+              // Text("Date         "+(dt==null? "loading":dt).toString(),
+              //     style: TextStyle(fontSize: 40.0),
+              // ),
+
+              // Text((description==null? "loading":description).toString(),
+              //   style: TextStyle(fontSize: 40.0),
+              // ),
+              // Text("Humidity         "+(humidity==null? "loading":humidity).toString()+"%",
+              //   style: TextStyle(fontSize: 40.0),
+              // ),
+              // SizedBox(
+              //   width: 200,
+              //   child: TextField(
+              //     controller: cityNameController,
+              //     textAlign: TextAlign.center,
+              //   ) ,
+              // ),
+              // // TextField(
+              // //
+              // // ),
+              // SizedBox(
+              //   height: 10,
+              // ),
+              // ElevatedButton(
+              //   onPressed: getWeather,
+              //
+              //   child: Text("Search",style: TextStyle(
+              //     fontSize: 40,
+              //   ),),
+              // ),
 
 
             ],
           ),
+
         ),
       ),
     );
